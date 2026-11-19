@@ -21,22 +21,42 @@ const questions = [
   },
 ];
 
-const quizBox = document.getElementById("quiz");
+const TIME_LIMIT = 15;
+
+const quizEl = document.getElementById("quiz");
 const questionEl = document.getElementById("question");
 const optionsEl = document.getElementById("options");
+const countEl = document.getElementById("question-count");
+const timerEl = document.getElementById("timer");
+const progressBar = document.getElementById("progress-bar");
+const resultEl = document.getElementById("result");
 const nextBtn = document.getElementById("next-btn");
 
 let currentIndex = 0;
 let score = 0;
+let timeLeft = 0;
+let timerId = null;
+let autoNextId = null;
+
+function shuffle(array) {
+  const copy = [...array];
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+}
 
 function showQuestion() {
+  const q = questions[currentIndex];
+
   nextBtn.style.display = "none";
   optionsEl.innerHTML = "";
-
-  const q = questions[currentIndex];
   questionEl.textContent = currentIndex + 1 + ". " + q.question;
+  countEl.textContent =
+    "Question " + (currentIndex + 1) + " of " + questions.length;
 
-  q.options.forEach(function (option) {
+  shuffle(q.options).forEach(function (option) {
     const btn = document.createElement("button");
     btn.textContent = option;
     btn.classList.add("option-btn");
@@ -45,55 +65,113 @@ function showQuestion() {
     });
     optionsEl.appendChild(btn);
   });
+
+  startTimer();
+}
+
+function startTimer() {
+  stopTimer();
+  timeLeft = TIME_LIMIT * 10;
+  updateTimerUI();
+
+  timerId = setInterval(function () {
+    timeLeft--;
+    updateTimerUI();
+
+    if (timeLeft <= 0) {
+      stopTimer();
+      timeUp();
+    }
+  }, 100);
+}
+
+function stopTimer() {
+  clearInterval(timerId);
+  timerId = null;
+}
+
+function updateTimerUI() {
+  const percent = (timeLeft / (TIME_LIMIT * 10)) * 100;
+  progressBar.style.width = percent + "%";
+  timerEl.textContent = Math.ceil(timeLeft / 10) + "s";
+
+  const low = timeLeft <= 50;
+  timerEl.classList.toggle("warning", low);
+  progressBar.classList.toggle("warning", low);
+}
+
+function lockButtons(correctAnswer) {
+  document.querySelectorAll(".option-btn").forEach(function (btn) {
+    btn.disabled = true;
+    if (btn.textContent === correctAnswer) {
+      btn.classList.add("correct");
+    }
+  });
 }
 
 function checkAnswer(clickedBtn, correctAnswer) {
-  const allButtons = document.querySelectorAll(".option-btn");
+  stopTimer();
 
   if (clickedBtn.textContent === correctAnswer) {
-    clickedBtn.classList.add("correct");
     score++;
   } else {
     clickedBtn.classList.add("wrong");
-    allButtons.forEach(function (btn) {
-      if (btn.textContent === correctAnswer) {
-        btn.classList.add("correct");
-      }
-    });
   }
 
-  allButtons.forEach(function (btn) {
-    btn.disabled = true;
-  });
-
+  lockButtons(correctAnswer);
   nextBtn.style.display = "inline-block";
 }
 
-function showResult() {
-  nextBtn.style.display = "none";
-  quizBox.innerHTML =
-    '<p id="result">You scored ' +
-    score +
-    " out of " +
-    questions.length +
-    "!</p>";
-
-  nextBtn.textContent = "Play Again";
-  nextBtn.style.display = "inline-block";
+function timeUp() {
+  lockButtons(questions[currentIndex].answer);
+  autoNextId = setTimeout(goNext, 1500);
 }
 
-nextBtn.addEventListener("click", function () {
-  if (nextBtn.textContent === "Play Again") {
-    location.reload();
-    return;
-  }
-
+function goNext() {
+  clearTimeout(autoNextId);
   currentIndex++;
 
   if (currentIndex < questions.length) {
     showQuestion();
   } else {
     showResult();
+  }
+}
+
+function showResult() {
+  stopTimer();
+  quizEl.style.display = "none";
+
+  const percent = Math.round((score / questions.length) * 100);
+  resultEl.innerHTML =
+    "You scored " +
+    score +
+    " out of " +
+    questions.length +
+    "!" +
+    "<span>Percentage: " +
+    percent +
+    "%</span>";
+  resultEl.style.display = "block";
+
+  nextBtn.textContent = "Play Again";
+  nextBtn.style.display = "inline-block";
+}
+
+function restartQuiz() {
+  currentIndex = 0;
+  score = 0;
+  resultEl.style.display = "none";
+  quizEl.style.display = "block";
+  nextBtn.textContent = "Next";
+  showQuestion();
+}
+
+nextBtn.addEventListener("click", function () {
+  if (nextBtn.textContent === "Play Again") {
+    restartQuiz();
+  } else {
+    goNext();
   }
 });
 
