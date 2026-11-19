@@ -1,0 +1,106 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
+
+body {
+  background-color: #001e4d;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.quiz-box {
+  background-color: white;
+  width: 90%;
+  max-width: 380px;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.quiz-box h1 {
+  font-size: 20px;
+  font-weight: 500;
+  color: #001e4d;
+}
+
+.quiz-box hr {
+  border: none;
+  border-top: 1px solid #eee;
+  margin: 12px 0 18px 0;
+}
+
+#question {
+  font-size: 15px;
+  font-weight: 500;
+  color: #001e4d;
+  margin-bottom: 12px;
+}
+
+.option-btn {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background-color: white;
+  border: 1px solid #222;
+  border-radius: 3px;
+  padding: 8px 6px;
+  margin-bottom: 12px;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.option-btn:hover {
+  background-color: #ddd;
+}
+
+.option-btn.correct {
+  background-color: #9fe1bd;
+}
+
+.option-btn.wrong {
+  background-color: #ff9e94;
+}
+
+.option-btn:disabled {
+  cursor: not-allowed;
+  color: #001e4d;
+}
+
+.option-btn:disabled:hover {
+  background-color: white;
+}
+
+.option-btn.correct:disabled:hover {
+  background-color: #9fe1bd;
+}
+
+.option-btn.wrong:disabled:hover {
+  background-color: #ff9e94;
+}
+
+.btn-area {
+  text-align: center;
+  margin-top: 8px;
+}
+
+#next-btn {
+  display: none;
+  background-color: #001e4d;
+  color: white;
+  border: none;
+  border-radius: 3px;
+  padding: 8px 30px;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+#result {
+  font-size: 15px;
+  font-weight: 500;
+  color: #001e4d;
+  margin-bottom: 12px;
+}
